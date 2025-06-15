@@ -25,6 +25,10 @@ class Product extends Model
         'is_available',
     ];
 
+    protected $casts = [
+        'average_rating' => 'float',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);

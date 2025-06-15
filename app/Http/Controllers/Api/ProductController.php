@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
 {
@@ -22,11 +23,20 @@ class ProductController extends Controller
         $products = Product::select(
             'products.*',
             'categories.name as category_name',
-            'categories.description as category_description'
+            'categories.description as category_description',
+            DB::raw('ROUND(AVG(product_reviews.point), 1) as average_rating')
         )
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('product_reviews', 'products.id', '=', 'product_reviews.product_id')
+            ->groupBy('products.id')
             ->when($request->category_id, function ($query) use ($request) {
                 return $query->where('products.category_id', $request->category_id);
+            })
+            ->when($request->sort_by === 'top_rating', function ($query) {
+                return $query->orderByDesc('average_rating');
+            })
+            ->when($request->sort_by === 'lowest_rating', function ($query) {
+                return $query->orderBy('average_rating');
             })
             ->paginate(10);
 
