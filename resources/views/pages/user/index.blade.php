@@ -35,88 +35,101 @@
                             <div class="card-header">
 
                             </div>
-                            <div class="card-body">
-                                <div class="float-left">
-                                    <select class="form-control selectric">
-                                        <option>Action For Selected</option>
-                                        <option>Move to Draft</option>
-                                        <option>Move to Pending</option>
-                                        <option>Delete Pemanently</option>
-                                    </select>
-                                </div>
-                                <div class="float-right">
-                                    <form method="GET" action="{{ route('user.index') }}">
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Search" name="name">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
 
-                                <div class="clearfix mb-3"></div>
+                            <div class="clearfix mb-3"></div>
+                            @php
+                                function formatPhoneToWa($phone)
+                                {
+                                    // Hapus karakter non-angka
+                                    $number = preg_replace('/[^0-9]/', '', $phone);
 
-                                <div class="table-responsive">
-                                    <table class="table-striped table">
+                                    // Cegah error jika string kosong
+                                    if (empty($number)) {
+                                        return null; // atau return ''; tergantung kebutuhan
+                                    }
+
+                                    // Jika mulai dengan 08
+                                    if (strpos($number, '08') === 0) {
+                                        return '+62' . substr($number, 1);
+                                    }
+
+                                    // Jika tidak mulai dengan 0
+                                    if ($number[0] !== '0') {
+                                        return '+62' . $number;
+                                    }
+
+                                    // Default: jika mulai dengan 0 tapi bukan 08
+                                    return '+62' . substr($number, 1);
+                                }
+
+                            @endphp
+
+                            <div class="table-responsive">
+                                <table class="table-striped table">
+                                    <tr>
+
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Roles</th>
+                                        <th>Action</th>
+                                    </tr>
+
+
+                                    @foreach ($users as $user)
                                         <tr>
+                                            <td>{{ $user->name }}</td>
+                                            <td>{{ $user->email }}</td>
+                                            <td>{{ $user->phone }}</td>
+                                            <td>{{ $user->roles }}</td>
+                                            <td>
+                                                <div class="d-flex justify-content-center">
 
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Roles</th>
-                                            <th>Created At</th>
-                                            <th>Action</th>
+                                                    {{-- Tombol WhatsApp --}}
+                                                    <a href="https://wa.me/{{ ltrim(formatPhoneToWa($user->phone), '+') }}?text={{ urlencode("Halo {$user->name}!\nKamu belum isi review untuk produk yang kamu pesan nih.\nYuk isi sekarang sebelum 2x24 jam, biar kami bisa terus meningkatkan kualitas layanan!\nBuka aplikasi untuk review\nTerima kasih banyak atas waktu dan bantuannya") }}"
+                                                        target="_blank" class="btn btn-sm btn-success btn-icon mr-2">
+                                                        <i class="fab fa-whatsapp"></i> WA
+                                                    </a>
+
+                                                    {{-- Tombol Alamat --}}
+                                                    <a href="{{ url('alamat/' . $user->id) }}"
+                                                        class="btn btn-sm btn-secondary btn-icon mr-2">
+                                                        <i class="fas fa-map-marker-alt"></i> Alamat
+                                                    </a>
+
+                                                    {{-- Tombol Edit --}}
+                                                    <a href='{{ route('user.edit', $user->id) }}'
+                                                        class="btn btn-sm btn-info btn-icon mr-2">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+
+                                                    {{-- Tombol Delete --}}
+                                                    <form action="{{ route('user.destroy', $user->id) }}" method="POST"
+                                                        class="ml-2">
+                                                        @method('DELETE')
+                                                        @csrf
+                                                        <button class="btn btn-sm btn-danger btn-icon confirm-delete">
+                                                            <i class="fas fa-times"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
                                         </tr>
-                                        @foreach ($users as $user)
-                                            <tr>
-
-                                                <td>{{ $user->name }}
-                                                </td>
-                                                <td>
-                                                    {{ $user->email }}
-                                                </td>
-                                                <td>
-                                                    {{ $user->phone }}
-                                                </td>
-                                                <td>
-                                                    {{ $user->roles }}
-                                                </td>
-                                                <td>{{ $user->created_at }}</td>
-                                                <td>
-                                                    <div class="d-flex justify-content-center">
-                                                        <a href='{{ route('user.edit', $user->id) }}'
-                                                            class="btn btn-sm btn-info btn-icon">
-                                                            <i class="fas fa-edit"></i>
-                                                            Edit
-                                                        </a>
-
-                                                        <form action="{{ route('user.destroy', $user->id) }}" method="POST"
-                                                            class="ml-2">
-                                                            <input type="hidden" name="_method" value="DELETE" />
-                                                            <input type="hidden" name="_token"
-                                                                value="{{ csrf_token() }}" />
-                                                            <button class="btn btn-sm btn-danger btn-icon confirm-delete">
-                                                                <i class="fas fa-times"></i> Delete
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                    @endforeach
 
 
-                                    </table>
-                                </div>
-                                <div class="float-right">
-                                    {{ $users->withQueryString()->links() }}
-                                </div>
+
+                                </table>
+                            </div>
+                            <div class="float-right">
+                                {{ $users->withQueryString()->links() }}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+    </div>
+    </section>
     </div>
 @endsection
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Address;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,9 +32,6 @@ class AddressController extends Controller
             'name' => $request->name,
             'full_address' => $request->full_address,
             'phone' => $request->phone,
-            'prov_id' => $request->prov_id,
-            'city_id' => $request->city_id,
-            'district_id' => $request->district_id,
             'postal_code' => $request->postal_code,
             'user_id' => $request->user()->id,
             'is_default' => $request->is_default,
@@ -63,9 +61,37 @@ class AddressController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        // Validasi input
+        $validated = $request->validate([
+            'id'           => 'required|exists:addresses,id',
+            'name'         => 'required|string|max:255',
+            'full_address' => 'required|string',
+            'phone'        => 'required|string|max:20',
+            'postal_code'  => 'required|string|max:10',
+            'user_id'      => 'required|exists:users,id',
+        ]);
+
+        // Ambil data alamat berdasarkan ID
+        $address = Address::findOrFail($validated['id']);
+
+        // Update data
+        $address->update([
+            'name'         => $validated['name'],
+            'full_address' => $validated['full_address'],
+            'phone'        => $validated['phone'],
+            'postal_code'  => $validated['postal_code'],
+            'user_id'      => $validated['user_id'],
+            'updated_at'   => now(),
+        ]);
+
+        // Kembalikan response
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Alamat berhasil diperbarui.',
+            'data'    => $address,
+        ]);
     }
 
     /**

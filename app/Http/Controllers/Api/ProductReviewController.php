@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\ProductReview;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 
 class ProductReviewController extends Controller
 {
@@ -50,8 +51,18 @@ class ProductReviewController extends Controller
             'product_id' => 'required',
             'user_id'    => 'required',
             'point'      => 'required|min:1|max:5',
-            'review'     => 'required|string',
+            'review'     => 'string',
         ]);
+
+        // Cek apakah user sudah memberikan review untuk produk ini dalam 24 jam terakhir
+        $alreadyReviewed = ProductReview::where('product_id', $validated['product_id'])
+            ->where('user_id', $validated['user_id'])
+            ->where('created_at', '>=', Carbon::now()->subDay()) // 24 jam terakhir
+            ->exists();
+
+        if ($alreadyReviewed) {
+            return response()->json('Anda sudah memberikan review. Silakan beri review lagi nanti', 429); // 429 Too Many Requests
+        }
 
         $review = ProductReview::create($validated);
         return response()->json($review, 201);

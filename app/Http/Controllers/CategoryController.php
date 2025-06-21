@@ -9,7 +9,7 @@ class CategoryController extends Controller
     //index
     public function index()
     {
-        $categories = \App\Models\Category::paginate(5);
+        $categories = \App\Models\Category::paginate(10);
         return view('pages.category.index', compact('categories'));
     }
 

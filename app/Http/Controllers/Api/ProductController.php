@@ -29,7 +29,7 @@ class ProductController extends Controller
             ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
             ->leftJoin('product_reviews', 'products.id', '=', 'product_reviews.product_id')
             ->groupBy('products.id')
-            ->when($request->category_id, function ($query) use ($request) {
+            ->when($request->category_id != 0, function ($query) use ($request) {
                 return $query->where('products.category_id', $request->category_id);
             })
             ->when($request->sort_by === 'top_rating', function ($query) {
@@ -37,6 +37,9 @@ class ProductController extends Controller
             })
             ->when($request->sort_by === 'lowest_rating', function ($query) {
                 return $query->orderBy('average_rating');
+            })
+            ->when($request->sort_by === null, function ($query) {
+                return $query->orderByDesc('products.created_at');
             })
             ->paginate(10);
 

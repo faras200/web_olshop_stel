@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AddressController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductReviewController;
@@ -20,9 +22,9 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('home', function () {
-        return view('pages.dashboard');
-    })->name('home');
+    Route::get('home', [DashboardController::class, 'index'])->name('home');
+
+    Route::resource('dashboard', DashboardController::class);
     Route::resource('user', UserController::class);
     //category
     Route::resource('category', \App\Http\Controllers\CategoryController::class);
@@ -32,4 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('order', \App\Http\Controllers\OrderController::class);
 
     Route::resource('product-review', ProductReviewController::class);
+
+    Route::get('alamat/{user}', [AddressController::class, 'showOrForm'])->name('address.form');
+    Route::post('alamat/{user}', [AddressController::class, 'storeOrUpdate'])->name('address.save');
 });
