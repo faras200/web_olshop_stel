@@ -86,7 +86,7 @@
                                                 <div class="d-flex justify-content-center">
 
                                                     {{-- Tombol WhatsApp --}}
-                                                    <a href="https://wa.me/{{ ltrim(formatPhoneToWa($user->phone), '+') }}?text={{ urlencode("Halo {$user->name}!\nKamu belum isi review untuk produk yang kamu pesan nih.\nYuk isi sekarang sebelum 2x24 jam, biar kami bisa terus meningkatkan kualitas layanan!\nBuka aplikasi untuk review\nTerima kasih banyak atas waktu dan bantuannya") }}"
+                                                    <a href="https://wa.me/{{ ltrim(formatPhoneToWa($user->phone), '+') }}?text={{ urlencode("Halo {$user->name}!\nKamu belum isi review untuk produk yang kamu pesan nih.\nYuk isi sekarang sebelum 2x24 jam, biar kami bisa terus meningkatkan kualitas layanan!\nBuka aplikasi untuk review\nAtau download aplikasi : https://bit.ly/3T9a7Ug\nTerima kasih banyak atas waktu dan bantuannya") }}"
                                                         target="_blank" class="btn btn-sm btn-success btn-icon mr-2">
                                                         <i class="fab fa-whatsapp"></i> WA
                                                     </a>
